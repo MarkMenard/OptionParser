@@ -8,5 +8,6 @@ Mark Menard's Small Code talks at LA Ruby Conf, Ruby on Ales,
 and Rails Conf in 2014.
 
 For an understanding of the evolution of the code see the three Small code talks
-in this (https://www.youtube.com/playlist?list=PLnxOotqZQyl49hjkNB480d6vln5VJtUyU)[playlist] on YouTube.
+in this [playlist](https://www.youtube.com/playlist?list=PLnxOotqZQyl49hjkNB480d6vln5VJtUyU)
+on YouTube.
 
