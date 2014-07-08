@@ -65,19 +65,19 @@ public class OptionParserTest {
 	}
 	
 	@Test
-	public void is_invalid_when_a_string_option_does_not_have_content () {
+	public void a_string_option_arg_must_have_content () {
 		OptionParser parser = new OptionParser (Arrays.asList("-f"), p -> p.option("f", "String"));
 		assertFalse(parser.isValid());
 	}
 
 	@Test
-	public void is_valid_when_a_string_arg_has_content () {
+	public void a_string_option_arg_is_valid_when_it_has_content () {
 		OptionParser parser = new OptionParser (Arrays.asList("-ffoo"), p -> p.option("f", "String"));
 		assertTrue(parser.isValid());
 	}
 
 	@Test
-	public void is_valid_when_a_string_arg_is_not_present () {
+	public void a_string_option_is_valid_when_the_arg_is_not_present () {
 		OptionParser parser = new OptionParser (Arrays.asList(""), p -> p.option("f", "String"));
 		assertTrue(parser.isValid());
 	}
@@ -94,5 +94,42 @@ public class OptionParserTest {
 		assertEquals(false, parser.getValue("f").isPresent());
 	}
 	
+	// Integer Options
 
+	@Test
+	public void can_define_an_integer_option () {
+		OptionParser parser = new OptionParser (emptyArgs, p -> p.option("f", "Integer"));
+		assertTrue(parser.hasConfiguredFlag("f"));
+		assertEquals("Integer", parser.getTypeForFlag("f"));
+	}
+	
+	@Test
+	public void an_integer_option_must_have_content () {
+		OptionParser parser = new OptionParser (Arrays.asList("-f"), p -> p.option("f", "Integer"));
+		assertEquals(false, parser.isValid());
+	}
+
+	@Test
+	public void an_integer_option_must_be_an_integer () {
+		OptionParser parser = new OptionParser (Arrays.asList("-ffoo"), p -> p.option("f", "Integer"));
+		assertEquals(false, parser.isValid());
+	}
+	
+	@Test
+	public void an_integer_option_is_valid_when_the_arg_is_not_present () {
+		OptionParser parser = new OptionParser (emptyArgs, p -> p.option("f", "Integer"));
+		assertEquals(true, parser.isValid());
+	}
+	
+	@Test
+	public void an_integer_option_can_return_an_integer_value () {
+		OptionParser parser = new OptionParser (Arrays.asList("-f100"), p -> p.option("f", "Integer"));
+		assertEquals(100, parser.getValue("f").get());
+	}
+	
+	@Test
+	public void an_integer_option_returns_an_empty_optional_when_absent () {
+		OptionParser parser = new OptionParser (emptyArgs, p -> p.option("f", "Integer"));
+		assertEquals(false, parser.getValue("f").isPresent());
+	}
 }
