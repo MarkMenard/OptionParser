@@ -24,9 +24,9 @@ public class OptionParser {
 	
 	@SuppressWarnings("rawtypes")
 	public Optional getValue (String flag) {
-		if (configuredFlags.get(flag) == STRING) {
+		if (configuredFlags.get(flag).equals(STRING)) {
 			return getValueForFlag(flag);
-		} else if (configuredFlags.get(flag) == BOOLEAN) {
+		} else if (configuredFlags.get(flag).equals(BOOLEAN)) {
 			return Optional.of(commandLineArguments.containsKey(flag));
 		}
 		return Optional.ofNullable(null);
@@ -42,7 +42,7 @@ public class OptionParser {
 	
 	public Boolean isValid () {
 		return commandLineArguments.values().stream()
-			.filter(arg -> arg.getType() == STRING)
+			.filter(arg -> arg.getType().equals(STRING))
 			.allMatch(arg -> arg.getRawValue() != null && arg.getRawValue().length() > 0);
 	}
 
