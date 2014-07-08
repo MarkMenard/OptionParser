@@ -24,10 +24,13 @@ public class OptionParser {
 	
 	@SuppressWarnings("rawtypes")
 	public Optional getValue (String flag) {
-		if (configuredFlags.get(flag).equals(STRING)) {
-			return getValueForFlag(flag);
-		} else if (configuredFlags.get(flag).equals(BOOLEAN)) {
-			return Optional.of(commandLineArguments.containsKey(flag));
+		String type = configuredFlags.get(flag);
+		if (type != null) {
+			if (type.equals(STRING)) {
+				return getValueForFlag(flag);
+			} else if (type.equals(BOOLEAN)) {
+				return Optional.of(commandLineArguments.containsKey(flag));
+			}
 		}
 		return Optional.ofNullable(null);
 	}
