@@ -29,6 +29,7 @@ public class FloatOption extends Option {
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public Optional getValue () {
 		return isValid() && getRawValue().isPresent() && isFloat(getRawValue().get().substring(2)) ? 
 				Optional.of(Float.valueOf(getRawValue().get().substring(2))) : 

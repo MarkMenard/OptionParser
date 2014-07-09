@@ -29,6 +29,7 @@ public class IntegerOption extends Option {
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public Optional getValue () {
 		return isValid() && getRawValue().isPresent() && isInteger(getRawValue().get().substring(2)) ? 
 				Optional.of(Integer.valueOf(getRawValue().get().substring(2))) : 
