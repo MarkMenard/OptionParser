@@ -25,9 +25,9 @@ public class OptionParserTest {
 			p.option("i", "Integer");
 		});
 		
-		assertTrue((Boolean) parser.getValue("v").get());
-		assertFalse((Boolean) parser.getValue("p").get());
-		assertEquals("foo", (String) parser.getValue("n").get());
+		assertEquals(true, parser.getValue("v").get());
+		assertEquals(false, parser.getValue("p").get());
+		assertEquals("foo", parser.getValue("n").get());
 		parser.getValue("s").ifPresent(arg -> fail("We shouldn't be able to get here because -s isn't in the ARGV collection."));
 		assertEquals(1.0f, parser.getValue("f").get());
 		assertEquals(2, parser.getValue("i").get());
