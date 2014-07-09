@@ -30,6 +30,7 @@ public class OptionParserTest {
 		assertEquals("foo", (String) parser.getValue("n").get());
 		parser.getValue("s").ifPresent(arg -> fail("We shouldn't be able to get here because -s isn't in the ARGV collection."));
 		assertEquals(1.0f, parser.getValue("f").get());
+		assertEquals(2, parser.getValue("i").get());
 	}
 
 	@Test
