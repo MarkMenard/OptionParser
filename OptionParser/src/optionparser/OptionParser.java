@@ -4,14 +4,17 @@ import java.util.*;
 
 public class OptionParser {
 	
-	private final Map<String, CommandLineArgument> commandLineArguments = new HashMap<> ();
+	private final List<String> argsFromCommandLine;
+	private final Map<String, Option> optionsMap = new HashMap<> ();
 	private final Map<String, String> configuredFlags = new HashMap<String, String> ();
 	private static final String STRING = "String";
 	private static final String BOOLEAN = "Boolean";
+	private static final Optional<String> NULL_OPTIONAL = Optional.ofNullable(null);
 	
 	public OptionParser (List<String> argsFromCommandLine, ParserConfig config) {
 		config.configure(this);
-		setupCommandLineArguments(argsFromCommandLine);
+		this.argsFromCommandLine = argsFromCommandLine;
+		setupCommandLineOptions();
 	}
 
 	public void option (String flag) {
@@ -24,15 +27,7 @@ public class OptionParser {
 	
 	@SuppressWarnings("rawtypes")
 	public Optional getValue (String flag) {
-		String type = configuredFlags.get(flag);
-		if (type != null) {
-			if (type.equals(STRING)) {
-				return getValueForFlag(flag);
-			} else if (type.equals(BOOLEAN)) {
-				return Optional.of(commandLineArguments.containsKey(flag));
-			}
-		}
-		return Optional.ofNullable(null);
+		return optionsMap.containsKey(flag) ? optionsMap.get(flag).getValue() : NULL_OPTIONAL;
 	}
 		
 	public Boolean hasConfiguredFlag (String flag) {
@@ -44,71 +39,28 @@ public class OptionParser {
 	}
 	
 	public Boolean isValid () {
-		return commandLineArguments.values().stream()
-			.filter(arg -> arg.getType().equals(STRING))
-			.allMatch(arg -> arg.getRawValue() != null && arg.getRawValue().length() > 0);
+		return optionsMap.values().stream()
+			.allMatch(option -> option.isValid());
 	}
 
 	private Optional<String> getValueForFlag (String flag) {
-		CommandLineArgument arg = commandLineArguments.get(flag);
-		
-		return arg != null ? Optional.of(arg.getRawValue()) : Optional.ofNullable(null);
-		
+		return argsFromCommandLine.stream()
+				.filter(arg -> arg.startsWith("-" + flag))
+				.findFirst();
 	}
 	
-	private void setupCommandLineArguments(List<String> rawArgsFromCommandLine) {
-		List<CommandLineArgument> clas = new ArrayList<> ();
-
-		rawArgsFromCommandLine.stream()
-			.filter(arg -> arg.length() >= 2)
-			.forEach((arg) -> {
-				String flag = arg.substring(1, 2);
-				String value = arg.length() > 2 ? arg.substring(2) : null;
-				clas.add(new CommandLineArgument(flag, value));
-			});
-		
-		configuredFlags.keySet().forEach(flag -> {
-			clas.stream()
-				.filter(cla -> cla.getFlag().equals(flag))
-				.findFirst()
-				.ifPresent(cla -> cla.setType(configuredFlags.get(flag)));
+	private void setupCommandLineOptions () {
+		configuredFlags.entrySet().forEach(entry -> {
+			String flag = entry.getKey();
+			String type = entry.getValue();
+			
+			if (type.equals(STRING)) {
+				optionsMap.put(flag, new StringOption (flag, getValueForFlag(flag)));
+			} else if (type.equals(BOOLEAN)) {
+				optionsMap.put(flag, new BooleanOption (flag, getValueForFlag(flag)));
+			} else {
+				throw new RuntimeException ("ERROR: Attempt to create an option of an invalid type: " + type);
+			}
 		});
-		
-		clas.forEach(cla -> commandLineArguments.put(cla.getFlag(), cla));
-	}
-	
-	public class CommandLineArgument {
-		private String flag;
-		private String rawValue;
-		private String type;
-		
-		public String getType() {
-			return type;
-		}
-
-		public void setType(String type) {
-			this.type = type;
-		}
-
-		public CommandLineArgument (String flag, String rawValue) {
-			this.flag = flag;
-			this.rawValue = rawValue;
-		}
-
-		public String getFlag() {
-			return flag;
-		}
-		
-		public void setFlag(String flag) {
-			this.flag = flag;
-		}
-		
-		public String getRawValue() {
-			return rawValue;
-		}
-		
-		public void setRawValue(String rawValue) {
-			this.rawValue = rawValue;
-		}
 	}
 }
