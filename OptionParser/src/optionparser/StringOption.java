@@ -3,6 +3,9 @@ package optionparser;
 import java.util.Optional;
 
 public class StringOption extends Option {
+	public StringOption () {
+	}
+
 	public StringOption (String flag, Optional<String> rawValue) {
 		super(flag, rawValue);
 	}

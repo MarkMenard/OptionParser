@@ -1,24 +1,23 @@
 package optionparser;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class OptionParser {
 	
 	private final List<String> argsFromCommandLine;
 	private final Map<String, Option> optionsMap = new HashMap<> ();
 	private final Map<String, String> configuredFlags = new HashMap<String, String> ();
-	private static final String STRING = "String";
-	private static final String BOOLEAN = "Boolean";
 	private static final Optional<String> NULL_OPTIONAL = Optional.ofNullable(null);
 	
-	public OptionParser (List<String> argsFromCommandLine, ParserConfig config) {
-		config.configure(this);
+	public OptionParser (List<String> argsFromCommandLine, Consumer<OptionParser> config) {
+		config.accept(this);
 		this.argsFromCommandLine = argsFromCommandLine;
 		setupCommandLineOptions();
 	}
 
 	public void option (String flag) {
-		option(flag, BOOLEAN);
+		option(flag, "Boolean");
 	}
 	
 	public void option (String flag, String type) {
@@ -30,14 +29,6 @@ public class OptionParser {
 		return optionsMap.containsKey(flag) ? optionsMap.get(flag).getValue() : NULL_OPTIONAL;
 	}
 		
-	public Boolean hasConfiguredFlag (String flag) {
-		return configuredFlags.keySet().contains(flag);
-	}
-	
-	public String getTypeForFlag (String flag) {
-		return configuredFlags.get(flag);
-	}
-	
 	public Boolean isValid () {
 		return optionsMap.values().stream()
 			.allMatch(option -> option.isValid());
@@ -53,13 +44,13 @@ public class OptionParser {
 		configuredFlags.entrySet().forEach(entry -> {
 			String flag = entry.getKey();
 			String type = entry.getValue();
-			
-			if (type.equals(STRING)) {
-				optionsMap.put(flag, new StringOption (flag, getValueForFlag(flag)));
-			} else if (type.equals(BOOLEAN)) {
-				optionsMap.put(flag, new BooleanOption (flag, getValueForFlag(flag)));
-			} else {
-				throw new RuntimeException ("ERROR: Attempt to create an option of an invalid type: " + type);
+			try {
+				Option option = (Option) Class.forName("optionparser." + type + "Option").newInstance();
+				option.setFlag(flag);
+				option.setRawValue(getValueForFlag(flag));
+				optionsMap.put(flag, option);
+			} catch (Exception e) {
+				throw new RuntimeException ("ERROR: Could not handle option " + flag + " with type " + type, e);
 			}
 		});
 	}

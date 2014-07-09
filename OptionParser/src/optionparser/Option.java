@@ -1,3 +1,6 @@
+// some_command -ffoo
+//              ^^^^^
+
 package optionparser;
 
 import java.util.Optional;
@@ -5,6 +8,9 @@ import java.util.Optional;
 public abstract class Option {
 	private String flag;
 	private Optional<String> rawValue;
+	
+	public Option () {
+	}
 	
 	public Option (String flag, Optional<String> rawValue) {
 		this.flag = flag;

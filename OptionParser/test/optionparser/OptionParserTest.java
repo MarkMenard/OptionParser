@@ -16,31 +16,26 @@ public class OptionParserTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void multiple_options () {
-		OptionParser parser = new OptionParser (Arrays.asList("-v", "-ffoo", "-p"), p -> { 
-			p.option("f", "String");
+		OptionParser parser = new OptionParser (Arrays.asList("-v", "-nfoo", "-f1.0", "-i2"), p -> { 
 			p.option("v");
 			p.option("p");
+			p.option("n", "String");
 			p.option("s", "String");
+			p.option("f", "Float");
+			p.option("i", "Integer");
 		});
 		
-		parser.getValue("s").ifPresent(arg -> fail("We shouldn't be able to get here because -s isn't in the ARGV collection."));
 		assertTrue((Boolean) parser.getValue("v").get());
-		assertTrue((Boolean) parser.getValue("p").get());
-		assertEquals("foo", (String) parser.getValue("f").get());
-		
+		assertFalse((Boolean) parser.getValue("p").get());
+		assertEquals("foo", (String) parser.getValue("n").get());
+		parser.getValue("s").ifPresent(arg -> fail("We shouldn't be able to get here because -s isn't in the ARGV collection."));
+		assertEquals(1.0f, parser.getValue("f").get());
 	}
 
 	@Test
 	public void returns_empty_optional_for_undefined_option () {
 		OptionParser parser = new OptionParser (Arrays.asList("-ffoo"), p -> p.option("v"));
 		assertFalse(parser.getValue("f").isPresent());
-	}
-	
-	@Test
-	public void can_define_a_boolean_option () {
-		OptionParser parser = new OptionParser (emptyArgs, p -> p.option("v"));
-		assertTrue(parser.hasConfiguredFlag("v"));
-		assertEquals("Boolean", parser.getTypeForFlag("v"));
 	}
 	
 	@Test
@@ -56,13 +51,6 @@ public class OptionParserTest {
 	}
 	
 	// String options
-	
-	@Test
-	public void can_define_a_string_option () {
-		OptionParser parser = new OptionParser (emptyArgs, p -> p.option("f", "String"));
-		assertTrue(parser.hasConfiguredFlag("f"));
-		assertEquals("String", parser.getTypeForFlag("f"));
-	}
 	
 	@Test
 	public void a_string_option_arg_must_have_content () {
@@ -97,13 +85,6 @@ public class OptionParserTest {
 	// Integer Options
 
 	@Test
-	public void can_define_an_integer_option () {
-		OptionParser parser = new OptionParser (emptyArgs, p -> p.option("f", "Integer"));
-		assertTrue(parser.hasConfiguredFlag("f"));
-		assertEquals("Integer", parser.getTypeForFlag("f"));
-	}
-	
-	@Test
 	public void an_integer_option_must_have_content () {
 		OptionParser parser = new OptionParser (Arrays.asList("-f"), p -> p.option("f", "Integer"));
 		assertEquals(false, parser.isValid());
@@ -132,4 +113,13 @@ public class OptionParserTest {
 		OptionParser parser = new OptionParser (emptyArgs, p -> p.option("f", "Integer"));
 		assertEquals(false, parser.getValue("f").isPresent());
 	}
+	
+	// Float options
+	
+	@Test
+	public void a_float_option_can_return_an_float_value () {
+		OptionParser parser = new OptionParser (Arrays.asList("-f1.0"), p -> p.option("f", "Float"));
+		assertEquals(1.0f, parser.getValue("f").get());
+	}
+
 }
